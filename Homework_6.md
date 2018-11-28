@@ -272,3 +272,53 @@ birthweight %>%
 <img src="Homework_6_files/figure-markdown_github/p2.3-1.png" width="90%" /> According to the plot, we found that the residuals bounce randomly above and below the line residual = 0. The points roughly form a "horizontal band" around the line residual = 0. There were no obvious outliers in the plot. Therefore, We can assume that it met the criteria of a regression model.
 
 Next, we compare your model to two others: One using length at birth and gestational age as predictors (main effects only); One using head circumference, length, sex, and all interactions
+
+``` r
+model1 = lm(bwt ~ blength + gaweeks, data = birthweight)
+summary(model1)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = bwt ~ blength + gaweeks, data = birthweight)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -1709.6  -215.4   -11.4   208.2  4188.8 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -4347.667     97.958  -44.38   <2e-16 ***
+    ## blength       128.556      1.990   64.60   <2e-16 ***
+    ## gaweeks        27.047      1.718   15.74   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 333.2 on 4339 degrees of freedom
+    ## Multiple R-squared:  0.5769, Adjusted R-squared:  0.5767 
+    ## F-statistic:  2958 on 2 and 4339 DF,  p-value: < 2.2e-16
+
+``` r
+model2 = lm(bwt ~ bhead + blength + babysex + bhead*babysex + bhead*blength + blength*babysex + bhead*babysex*blength, data = birthweight)
+summary(model1)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = bwt ~ blength + gaweeks, data = birthweight)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -1709.6  -215.4   -11.4   208.2  4188.8 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -4347.667     97.958  -44.38   <2e-16 ***
+    ## blength       128.556      1.990   64.60   <2e-16 ***
+    ## gaweeks        27.047      1.718   15.74   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 333.2 on 4339 degrees of freedom
+    ## Multiple R-squared:  0.5769, Adjusted R-squared:  0.5767 
+    ## F-statistic:  2958 on 2 and 4339 DF,  p-value: < 2.2e-16

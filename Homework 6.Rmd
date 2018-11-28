@@ -159,6 +159,15 @@ According to the plot, we found that the residuals bounce randomly above and bel
 Next, we compare your model to two others: 
 One using length at birth and gestational age as predictors (main effects only);
 One using head circumference, length, sex, and all interactions
+
+```{r write down 2 models}
+model1 = lm(bwt ~ blength + gaweeks, data = birthweight)
+summary(model1)
+
+model2 = lm(bwt ~ bhead + blength + babysex + bhead*babysex + bhead*blength + blength*babysex + bhead*babysex*blength, data = birthweight)
+summary(model1)
+```
+
 ```{r}
 
 ```
