@@ -22,7 +22,7 @@ set.seed(1)
 ```
 
 ### Problem 1
-```{r read in data}
+```{r read in homicide data}
 homicide = read_csv(file = "./data/homicide-data.csv") %>% 
   janitor::clean_names() 
 ```
@@ -100,5 +100,66 @@ cities %>%
     y = "Odds Ratio and Confidence Interval"
     ) + 
   theme(legend.position = "right", axis.text.x = element_text(angle = 90, size = 7))
+```
+According to the plot created, we found that the mean odds ratio of solving for a non-white victim case compared to white victime is less than 1. This suggests that the non-white victim cases are more likely to be unsolved. In addition, we found that Boston has the smallest OR, Tampa has the largest OR, and Durham has the largest CI.
+
+
+### Problem 2
+```{r read in birthweight data}
+birthweight = read_csv(file = "./data/birthweight.csv") %>%
+  janitor::clean_names()  
+```
+
+```{r tidy data}
+birthweight %>% 
+  janitor::clean_names() %>% 
+  na.omit() %>% 
+  mutate(babysex = as.factor(babysex),
+         frace = as.factor(frace),
+         malform = as.factor(malform),
+         mrace = as.factor(mrace))
+
+birthweight
+```
+There was no missing data in the dataset, and the distribution of the variables looks normal. However, all records of pnumlbw and variable pnumsga are 0.
+
+
+Then we could use stepwise selection to select our models
+```{r p2.1}
+full_model = lm(bwt ~ ., data = birthweight)
+
+stepwise = step(full_model, direction = "both", trace = 0)
+```
+
+Then, we searched literature and tried to find which predictors we should include in our model 
+```{r p2.2}
+final_model = lm(bwt ~ babysex + bhead + blength + gaweeks + mheight + mrace + parity, data = birthweight)
+
+summary(final_model)
+```
+We included the sex of baby, baby’s head circumference at birth, baby’s length at birth, gestational age in weeks, mother’s height, mother’s race, and parity into our final regression model based on lit review.
+
+
+Then we created a plot of model residuals against fitted values 
+```{r p2.3}
+birthweight %>% 
+  add_residuals(final_model) %>% 
+  add_predictions(final_model) %>% 
+  ggplot(aes(x = pred, y = resid)) + 
+  geom_point(alpha = 0.5) +
+  labs(
+     title = "Residuals against fitted values",
+     x = "Fitted value (prediction)",
+     y = "Residual"
+   )
+```
+According to the plot, we found that the residuals bounce randomly above and below the line residual = 0. The points roughly form a "horizontal band" around the line residual = 0. There were no obvious outliers in the plot. Therefore, We can assume that it met the criteria of a regression model.
+
+
+Next, we compare your model to two others: 
+One using length at birth and gestational age as predictors (main effects only);
+One using head circumference, length, sex, and all interactions
+```{r}
+
 ```
 

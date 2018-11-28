@@ -141,4 +141,134 @@ cities %>%
   theme(legend.position = "right", axis.text.x = element_text(angle = 90, size = 7))
 ```
 
-<img src="Homework_6_files/figure-markdown_github/p1.5-1.png" width="90%" />
+<img src="Homework_6_files/figure-markdown_github/p1.5-1.png" width="90%" /> According to the plot created, we found that the mean odds ratio of solving for a non-white victim case compared to white victime is less than 1. This suggests that the non-white victim cases are more likely to be unsolved. In addition, we found that Boston has the smallest OR, Tampa has the largest OR, and Durham has the largest CI.
+
+### Problem 2
+
+``` r
+birthweight = read_csv(file = "./data/birthweight.csv") %>%
+  janitor::clean_names()  
+```
+
+    ## Parsed with column specification:
+    ## cols(
+    ##   .default = col_integer(),
+    ##   gaweeks = col_double(),
+    ##   ppbmi = col_double(),
+    ##   smoken = col_double()
+    ## )
+
+    ## See spec(...) for full column specifications.
+
+``` r
+birthweight %>% 
+  janitor::clean_names() %>% 
+  na.omit() %>% 
+  mutate(babysex = as.factor(babysex),
+         frace = as.factor(frace),
+         malform = as.factor(malform),
+         mrace = as.factor(mrace))
+```
+
+    ## # A tibble: 4,342 x 20
+    ##    babysex bhead blength   bwt delwt fincome frace gaweeks malform menarche
+    ##    <fct>   <int>   <int> <int> <int>   <int> <fct>   <dbl> <fct>      <int>
+    ##  1 2          34      51  3629   177      35 1        39.9 0             13
+    ##  2 1          34      48  3062   156      65 2        25.9 0             14
+    ##  3 2          36      50  3345   148      85 1        39.9 0             12
+    ##  4 1          34      52  3062   157      55 1        40   0             14
+    ##  5 2          34      52  3374   156       5 1        41.6 0             13
+    ##  6 1          33      52  3374   129      55 1        40.7 0             12
+    ##  7 2          33      46  2523   126      96 2        40.3 0             14
+    ##  8 2          33      49  2778   140       5 1        37.4 0             12
+    ##  9 1          36      52  3515   146      85 1        40.3 0             11
+    ## 10 1          33      50  3459   169      75 2        40.7 0             12
+    ## # ... with 4,332 more rows, and 10 more variables: mheight <int>,
+    ## #   momage <int>, mrace <fct>, parity <int>, pnumlbw <int>, pnumsga <int>,
+    ## #   ppbmi <dbl>, ppwt <int>, smoken <dbl>, wtgain <int>
+
+``` r
+birthweight
+```
+
+    ## # A tibble: 4,342 x 20
+    ##    babysex bhead blength   bwt delwt fincome frace gaweeks malform menarche
+    ##      <int> <int>   <int> <int> <int>   <int> <int>   <dbl>   <int>    <int>
+    ##  1       2    34      51  3629   177      35     1    39.9       0       13
+    ##  2       1    34      48  3062   156      65     2    25.9       0       14
+    ##  3       2    36      50  3345   148      85     1    39.9       0       12
+    ##  4       1    34      52  3062   157      55     1    40         0       14
+    ##  5       2    34      52  3374   156       5     1    41.6       0       13
+    ##  6       1    33      52  3374   129      55     1    40.7       0       12
+    ##  7       2    33      46  2523   126      96     2    40.3       0       14
+    ##  8       2    33      49  2778   140       5     1    37.4       0       12
+    ##  9       1    36      52  3515   146      85     1    40.3       0       11
+    ## 10       1    33      50  3459   169      75     2    40.7       0       12
+    ## # ... with 4,332 more rows, and 10 more variables: mheight <int>,
+    ## #   momage <int>, mrace <int>, parity <int>, pnumlbw <int>, pnumsga <int>,
+    ## #   ppbmi <dbl>, ppwt <int>, smoken <dbl>, wtgain <int>
+
+There was no missing data in the dataset, and the distribution of the variables looks normal. However, all records of pnumlbw and variable pnumsga are 0.
+
+Then we could use stepwise selection to select our models
+
+``` r
+full_model = lm(bwt ~ ., data = birthweight)
+
+stepwise = step(full_model, direction = "both", trace = 0)
+```
+
+Then, we searched literature and tried to find which predictors we should include in our model
+
+``` r
+final_model = lm(bwt ~ babysex + bhead + blength + gaweeks + mheight + mrace + parity, data = birthweight)
+
+summary(final_model)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = bwt ~ babysex + bhead + blength + gaweeks + mheight + 
+    ##     mrace + parity, data = birthweight)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1129.95  -182.29    -6.22   178.82  2497.95 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -6604.402    138.959 -47.528  < 2e-16 ***
+    ## babysex        33.640      8.695   3.869 0.000111 ***
+    ## bhead         139.793      3.504  39.890  < 2e-16 ***
+    ## blength        79.164      2.059  38.448  < 2e-16 ***
+    ## gaweeks        13.090      1.497   8.745  < 2e-16 ***
+    ## mheight         9.441      1.664   5.672  1.5e-08 ***
+    ## mrace         -55.043      5.758  -9.559  < 2e-16 ***
+    ## parity        102.807     41.548   2.474 0.013383 *  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 280.7 on 4334 degrees of freedom
+    ## Multiple R-squared:  0.7002, Adjusted R-squared:  0.6997 
+    ## F-statistic:  1446 on 7 and 4334 DF,  p-value: < 2.2e-16
+
+We included the sex of baby, baby’s head circumference at birth, baby’s length at birth, gestational age in weeks, mother’s height, mother’s race, and parity into our final regression model based on lit review.
+
+Then we created a plot of model residuals against fitted values
+
+``` r
+birthweight %>% 
+  add_residuals(final_model) %>% 
+  add_predictions(final_model) %>% 
+  ggplot(aes(x = pred, y = resid)) + 
+  geom_point(alpha = 0.5) +
+  labs(
+     title = "Residuals against fitted values",
+     x = "Fitted value (prediction)",
+     y = "Residual"
+   )
+```
+
+<img src="Homework_6_files/figure-markdown_github/p2.3-1.png" width="90%" /> According to the plot, we found that the residuals bounce randomly above and below the line residual = 0. The points roughly form a "horizontal band" around the line residual = 0. There were no obvious outliers in the plot. Therefore, We can assume that it met the criteria of a regression model.
+
+Next, we compare your model to two others: One using length at birth and gestational age as predictors (main effects only); One using head circumference, length, sex, and all interactions
