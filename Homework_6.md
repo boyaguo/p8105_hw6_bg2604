@@ -127,3 +127,18 @@ cities
     ## # ... with 37 more rows
 
 Create a plot that shows the estimated ORs and CIs for each city
+
+``` r
+cities %>% 
+  ggplot(aes(x = reorder(city_state, OR), y = OR, colour = city_state)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = conf_low, ymax = conf_high, width = 0.9)) +
+  labs(
+    title = "The estimated odds ratios and confidence intervals for solving homicides comparing non-white victims to white victims for each city",
+    x = "City",
+    y = "Odds Ratio and Confidence Interval"
+    ) + 
+  theme(legend.position = "right", axis.text.x = element_text(angle = 90, size = 7))
+```
+
+<img src="Homework_6_files/figure-markdown_github/p1.5-1.png" width="90%" />
