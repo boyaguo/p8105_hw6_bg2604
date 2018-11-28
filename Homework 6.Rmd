@@ -168,7 +168,32 @@ model2 = lm(bwt ~ bhead + blength + babysex + bhead*babysex + bhead*blength + bl
 summary(model1)
 ```
 
-```{r}
+Then, we calculated RMSE for the three models  
+```{r calculate RMSE for each model}
+cv = birthweight %>% 
+  crossv_mc(100)
 
+cv_bw = cv %>% 
+   mutate(
+     final_model =  map(train, ~lm(bwt ~ babysex + bhead + blength + gaweeks + mheight + mrace + parity, data = birthweight)),
+     model1 = map(train, ~lm(bwt ~ blength + gaweeks, data = .)),
+     model2 = map(train, ~lm(bwt ~ bhead + blength + babysex + bhead*babysex + bhead*blength + blength*babysex + bhead*babysex*blength, data = .))) %>% 
+   mutate(rmse_final_model = map2_dbl(final_model, test, ~rmse(.x, .y)),
+         rmse_model1 = map2_dbl(model1, test, ~rmse(.x, .y)),
+         rmse_model2 = map2_dbl(model2, test, ~rmse(.x, .y)))
 ```
 
+We could visulize this by plotting violin plots 
+```{r compare 3 models using violin plots}
+cv_bw %>% 
+  select(starts_with("rmse")) %>% 
+  gather(key = model, value = rmse) %>% 
+  mutate(model = str_replace(model, "rmse_", ""),
+         model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) + geom_violin() + 
+  labs(
+    title = "Comparison of the Three Models Using Violin Plots",
+    x = "Model",
+    y = "RMSE")
+```
+From our plots, we could see that our final model has a smaller RMSE, indicating a more fitted regression model. Therefore, I would use the final model for this study. More tests are still needed to derive a more fitted model.

@@ -322,3 +322,36 @@ summary(model1)
     ## Residual standard error: 333.2 on 4339 degrees of freedom
     ## Multiple R-squared:  0.5769, Adjusted R-squared:  0.5767 
     ## F-statistic:  2958 on 2 and 4339 DF,  p-value: < 2.2e-16
+
+Then, we calculated RMSE for the three models
+
+``` r
+cv = birthweight %>% 
+  crossv_mc(100)
+
+cv_bw = cv %>% 
+   mutate(
+     final_model =  map(train, ~lm(bwt ~ babysex + bhead + blength + gaweeks + mheight + mrace + parity, data = birthweight)),
+     model1 = map(train, ~lm(bwt ~ blength + gaweeks, data = .)),
+     model2 = map(train, ~lm(bwt ~ bhead + blength + babysex + bhead*babysex + bhead*blength + blength*babysex + bhead*babysex*blength, data = .))) %>% 
+   mutate(rmse_final_model = map2_dbl(final_model, test, ~rmse(.x, .y)),
+         rmse_model1 = map2_dbl(model1, test, ~rmse(.x, .y)),
+         rmse_model2 = map2_dbl(model2, test, ~rmse(.x, .y)))
+```
+
+We could visulize this by plotting violin plots
+
+``` r
+cv_bw %>% 
+  select(starts_with("rmse")) %>% 
+  gather(key = model, value = rmse) %>% 
+  mutate(model = str_replace(model, "rmse_", ""),
+         model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) + geom_violin() + 
+  labs(
+    title = "Comparison of the Three Models Using Violin Plots",
+    x = "Model",
+    y = "RMSE")
+```
+
+<img src="Homework_6_files/figure-markdown_github/compare 3 models using violin plots-1.png" width="90%" /> From our plots, we could see that our final model has a smaller RMSE, indicating a more fitted regression model. Therefore, I would use the final model for this study. More tests are still needed to derive a more fitted model.
